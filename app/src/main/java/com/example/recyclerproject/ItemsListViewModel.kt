@@ -1,6 +1,7 @@
 package com.example.recyclerproject
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.recyclerproject.Data.DataSource
@@ -9,14 +10,25 @@ import java.lang.IllegalArgumentException
 
 class ItemsListViewModel (val dataSource: DataSource): ViewModel() {
     val itemLiveData = dataSource.getItemList()
-    private var COUNT_NUM: Long = 31
+
     fun insertItem(){
         val newItem = Item(
-            COUNT_NUM,
+            getItemId(),
             "TEMP"
         )
-        COUNT_NUM++
         dataSource.addItem(newItem)
+    }
+
+    private fun getItemId(): Long{
+        return dataSource.getFreeId()
+    }
+
+    fun showItemIndex(item: Item): Int? {
+        return dataSource.getItemIndex(item)
+    }
+
+    fun showList(): LiveData<List<Item>> {
+        return dataSource.getItemList()
     }
 
     fun removeItem(item: Item) {

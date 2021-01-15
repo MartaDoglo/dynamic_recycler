@@ -1,31 +1,41 @@
 package com.example.recyclerproject
 
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.activity.viewModels
+import androidx.core.view.get
+import androidx.core.view.isVisible
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.recyclerproject.Data.Item
-import java.util.*
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import kotlin.concurrent.timer
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity()
+{
     private val itemListViewModel by viewModels<ItemsListViewModel>{
         ItemsListViewModelFactory(this)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val itemAdapter = ItemAdapter {item, position -> adapterOnClick(item, position)}
 
-        val itemAdapter = ItemAdapter {item ->  adapterOnClick(item)}
+        recycler_view.adapter = itemAdapter
 
-
-        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        recyclerView.adapter = itemAdapter
-
-        recyclerView.apply {
-            layoutManager = GridLayoutManager(this@MainActivity, 2)
+        recycler_view.apply {
+            layoutManager = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                GridLayoutManager(this@MainActivity, 2)
+            } else {
+                GridLayoutManager(this@MainActivity, 4)
+            }
         }
 
         itemListViewModel.itemLiveData.observe(this){
@@ -33,19 +43,21 @@ class MainActivity : AppCompatActivity() {
                 itemAdapter.submitList(it as MutableList<Item>)
             }
         }
+
         pushItemAsync()
+
     }
 
-
-    private fun adapterOnClick(item: Item){
+    private fun adapterOnClick(item: Item, position: Int){
         itemListViewModel.removeItem(item)
     }
 
     private fun pushItemAsync() = GlobalScope.async {
         while(true) {
-                delay(5000)
-                itemListViewModel.insertItem()
+            delay(5000)
+            itemListViewModel.insertItem()
         }
     }
 
 }
+
