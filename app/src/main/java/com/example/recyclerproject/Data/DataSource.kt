@@ -1,14 +1,13 @@
 package com.example.recyclerproject.Data
 
-import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
-class DataSource (resources: Resources){
-    private val initialItemList  = itemList(resources)
+class DataSource {
+    private val initialItemList  = itemList()
     private val itemLiveData = MutableLiveData(initialItemList)
 
-    private val freeId: MutableList<Long> = mutableListOf<Long>()
+    private val freeId: MutableList<Long> = mutableListOf()
 
     private fun getRandomPositionFromPull (): Int {
         if (itemLiveData.value?.size != 0) {
@@ -21,7 +20,7 @@ class DataSource (resources: Resources){
         val position = getRandomPositionFromPull()
         val currentList = itemLiveData.value
         if (currentList == null){
-            itemLiveData.postValue(listOf(item))
+            itemLiveData.postValue(mutableListOf(item))
         } else {
             val updatedList = currentList.toMutableList()
             updatedList.add(position, item)
@@ -31,6 +30,7 @@ class DataSource (resources: Resources){
 
     fun removeItem(item: Item){
         freeId.add(item.id)
+        freeId.sort()
         val currentList = itemLiveData.value
         if (currentList != null){
             val updatedList = currentList.toMutableList()
@@ -49,30 +49,15 @@ class DataSource (resources: Resources){
         return 0
     }
 
-    fun getConut(): Int? {
-        return itemLiveData.value?.size
-    }
-
-    fun getItemIndex(item: Item): Int? {
-        return itemLiveData.value?.indexOf(item)
-    }
-
-    fun getItemList(): LiveData<List<Item>>{
+    fun getItemList(): LiveData<MutableList<Item>>{
         return itemLiveData
-    }
-
-    fun getItemForId(id: Long): Item? {
-        itemLiveData.value?.let { items ->
-            return items.firstOrNull{ it.id == id}
-        }
-        return null
     }
 
     companion object {
         private var INSTANCE: DataSource? = null
-        fun getDataSource(resources: Resources): DataSource{
+        fun getDataSource(): DataSource{
             return synchronized(DataSource::class) {
-                val newInstance = INSTANCE ?: DataSource(resources)
+                val newInstance = INSTANCE ?: DataSource()
                 INSTANCE = newInstance
                 newInstance
             }

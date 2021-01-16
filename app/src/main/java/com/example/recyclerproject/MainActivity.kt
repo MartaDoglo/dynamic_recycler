@@ -3,19 +3,12 @@ package com.example.recyclerproject
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.activity.viewModels
-import androidx.core.view.get
-import androidx.core.view.isVisible
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.recyclerproject.Data.Item
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import kotlin.concurrent.timer
 
 class MainActivity : AppCompatActivity()
 {
@@ -39,13 +32,12 @@ class MainActivity : AppCompatActivity()
         }
 
         itemListViewModel.itemLiveData.observe(this){
-            it?.let {
+            it.let {
                 itemAdapter.submitList(it as MutableList<Item>)
             }
         }
 
         pushItemAsync()
-
     }
 
     private fun adapterOnClick(item: Item, position: Int){

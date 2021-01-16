@@ -1,13 +1,11 @@
 package com.example.recyclerproject
 
-import android.content.Context
-import android.util.Log
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -33,14 +31,22 @@ class ItemAdapter(private val onClick: (Item, Int) -> Unit
             private var currentItem: Item? = null
 
         init {
-                itemDeleteButton.setOnClickListener {
+            itemDeleteButton.setOnClickListener(object : View.OnClickListener {
+                private var mLastClickTime = 0
+                override fun onClick(v: View) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime().toInt()
+
                     if (currentItem != null) {
-                        currentItem?.let{
-                            onClick(it, layoutPosition)
-                        }
+                    currentItem?.let {
+                        onClick(it, layoutPosition)
                     }
                 }
-            }
+                }
+            })
+        }
 
             fun bind(item: Item) {
                itemContainer.animation = AnimationUtils.loadAnimation(itemNameTextView.context, R.anim.del_item)

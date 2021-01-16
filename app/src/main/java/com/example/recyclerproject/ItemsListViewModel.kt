@@ -1,7 +1,6 @@
 package com.example.recyclerproject
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.recyclerproject.Data.DataSource
@@ -12,9 +11,10 @@ class ItemsListViewModel (val dataSource: DataSource): ViewModel() {
     val itemLiveData = dataSource.getItemList()
 
     fun insertItem(){
+        val alphabet: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
         val newItem = Item(
-            getItemId(),
-            "TEMP"
+                getItemId(),
+                List(6) { alphabet.random() }.joinToString("")
         )
         dataSource.addItem(newItem)
     }
@@ -23,21 +23,10 @@ class ItemsListViewModel (val dataSource: DataSource): ViewModel() {
         return dataSource.getFreeId()
     }
 
-    fun showItemIndex(item: Item): Int? {
-        return dataSource.getItemIndex(item)
-    }
-
-    fun showList(): LiveData<List<Item>> {
-        return dataSource.getItemList()
-    }
-
     fun removeItem(item: Item) {
         dataSource.removeItem(item)
     }
 
-    fun getItemForId(id: Long) : Item? {
-        return dataSource.getItemForId(id)
-    }
 }
 
 class ItemsListViewModelFactory(private val context: Context): ViewModelProvider.Factory{
@@ -46,7 +35,7 @@ class ItemsListViewModelFactory(private val context: Context): ViewModelProvider
         if (modelClass.isAssignableFrom(ItemsListViewModel::class.java)){
             @Suppress("UNCHECKED_CAST")
             return ItemsListViewModel(
-                dataSource = DataSource.getDataSource(context.resources)
+                dataSource = DataSource.getDataSource()
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
